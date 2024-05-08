@@ -13,9 +13,9 @@ class ImageDataset(Dataset):
     def __init__(self, transform=None, train_or_test='train', if_resize=True):
         script_dir = os.path.dirname(os.path.abspath(__file__))
         if train_or_test == 'train':
-            csv_file_path = os.path.join(script_dir, 'train.csv')
+            csv_file_path = os.path.join(script_dir, 'index/train.csv')
         else:
-            csv_file_path = os.path.join(script_dir, 'test.csv')
+            csv_file_path = os.path.join(script_dir, 'index/test.csv')
         self.data = pd.read_csv(csv_file_path)
         self.data = self.data.iloc[1:]  # 移除首行(表头)
 
@@ -39,7 +39,7 @@ class ImageDataset(Dataset):
 
     def __getitem__(self, idx):
         img_name = self.data.iloc[idx, 0]
-        img_path = os.path.join(os.path.dirname(__file__), "Images", img_name)
+        img_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "Images", img_name)
         gt_value = self.data.iloc[idx, 1]
         
         img = Image.open(img_path).convert("RGB")
