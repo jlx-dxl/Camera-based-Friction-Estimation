@@ -184,13 +184,13 @@ def fast_glcm_entropy(img, vmin=0, vmax=255, levels=8, ks=5, distance=1.0, angle
     ent  = np.sum(-pnorm * np.log(pnorm), axis=(0,1))
     return ent
 
-def display_img(glcm_mean):
+def display_img(img, name = '?'):
     # 将 glcm_mean 数据规范化到 0 到 255 范围
-    glcm_mean_normalized = cv2.normalize(glcm_mean, None, alpha=0, beta=255, norm_type=cv2.NORM_MINMAX)
+    img_normalized = cv2.normalize(img, None, alpha=0, beta=255, norm_type=cv2.NORM_MINMAX)
     # 将数据类型转换为 uint8
-    glcm_mean_normalized = glcm_mean_normalized.astype(np.uint8)
+    img_normalized = img_normalized.astype(np.uint8)
     # 显示图像
-    cv2.imshow('GLCM Mean', glcm_mean_normalized)
+    cv2.imshow(name, img_normalized)
     cv2.waitKey(0)  # 等待按键操作
     cv2.destroyAllWindows()  # 关闭显示的窗口
     
@@ -227,13 +227,36 @@ def batch_glcm(imgs):
     batch_results = batch_results.permute(1, 0, 2, 3)  # 从 (5, 20, W, H) 调整到 (20, 5, W, H)
     return batch_results
 
+def visualize_all_glcm(imgs):
+    for img in imgs:
+        display_img(img, name='Original')
+        glcm_mean = fast_glcm_mean(img, 0.0, 1.0, 8, 5)
+        display_img(glcm_mean, name='Mean')
+        glcm_std = fast_glcm_std(img, 0.0, 1.0, 8, 5)
+        display_img(glcm_std, name='Std')
+        glcm_contrast = fast_glcm_contrast(img, 0.0, 1.0, 8, 5)
+        display_img(glcm_contrast, name='Contrast')
+        glcm_dissimilarity = fast_glcm_dissimilarity(img, 0.0, 1.0, 8, 5)
+        display_img(glcm_dissimilarity, name='Dissimilarity')
+        glcm_homogeneity = fast_glcm_homogeneity(img, 0.0, 1.0, 8, 5)
+        display_img(glcm_homogeneity, name='Homogeneity')
+        glcm_ASM, glcm_energ = fast_glcm_ASM(img, 0.0, 1.0, 8, 5)
+        display_img(glcm_ASM, name='ASM')
+        display_img(glcm_energ, name='Energy')
+        glcm_max = fast_glcm_max(img, 0.0, 1.0, 8, 5)
+        display_img(glcm_max, name='Max')
+        glcm_entropy = fast_glcm_entropy(img, 0.0, 1.0, 8, 5)
+        display_img(glcm_entropy, name='Entropy')      
+        
+
 
 if __name__ == "__main__":
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    dataset = ImageDataset(train_or_test='train')
+    dataset = ImageDataset(train_or_test='test')
     dataloader = DataLoader(dataset, batch_size=20, shuffle=True, num_workers=4)
     for _, images, gt_values in tqdm(dataloader):
         gray_imgs = tensor_to_grayscale_list(images)
-        batch_result = batch_glcm(gray_imgs)
-        print(batch_result.shape)  # 应该输出 (20, 5, W, H)
+        # batch_result = batch_glcm(gray_imgs)
+        # print(batch_result.shape)  # 应该输出 (20, 5, W, H)
+        visualize_all_glcm(gray_imgs)
             
