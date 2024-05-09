@@ -161,3 +161,10 @@ cython_debug/
 
 # imgs
 *.png
+
+# wandb
+wandb/
+
+# model
+model/testing/
+model/training/

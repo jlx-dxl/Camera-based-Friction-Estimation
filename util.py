@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 # coding: utf-8
 
+import os
+import wandb    
 import torch
 import numpy as np
 from torch.utils.data import DataLoader
@@ -9,6 +11,12 @@ from tqdm import tqdm
 import cv2
 
 from torchvision.transforms import Grayscale, ToPILImage, ToTensor
+
+def setup_wandb(args, name):
+    # Implement this if you wish to use wandb in your experiments
+    # TODO
+    os.environ["WANDB_API_KEY"] = '28cbf19c5cd0619337ae4fb844d56992a283b007'
+    wandb.init(project='Camera-based Friction Coefficient Estimation', config=args, name=name)
 
 
 def fast_glcm(img, vmin=0, vmax=255, levels=8, kernel_size=5, distance=1.0, angle=0.0):
@@ -201,12 +209,12 @@ def tensor_to_grayscale_list(images_tensor):
 
 def integrate_glcm(img):
     result = []
-    result.append(fast_glcm_contrast(img, 0.0, 1.0, 8, 5))
-    result.append(fast_glcm_dissimilarity(img, 0.0, 1.0, 8, 5))
-    result.append(fast_glcm_homogeneity(img, 0.0, 1.0, 8, 5))
-    glcm_ASM, _ = fast_glcm_ASM(img, 0.0, 1.0, 8, 5)
-    result.append(glcm_ASM)
-    result.append(fast_glcm_entropy(img, 0.0, 1.0, 8, 5))
+    result.append(fast_glcm_contrast(img, 0.0, 1.0, 8, 5))   # 对比度
+    # result.append(fast_glcm_dissimilarity(img, 0.0, 1.0, 8, 5))
+    result.append(fast_glcm_homogeneity(img, 0.0, 1.0, 8, 5))   # 同质性
+    # glcm_ASM, _ = fast_glcm_ASM(img, 0.0, 1.0, 8, 5)
+    # result.append(glcm_ASM)
+    result.append(fast_glcm_entropy(img, 0.0, 1.0, 8, 5))   # 熵
     return result
 
 def batch_glcm(imgs):
